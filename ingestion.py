@@ -42,9 +42,9 @@ async def index_docs_async(documents:List[Document],batch_size:int=50):
     logger.log_info(f"📦 VectorStore Indexing: Split into {len(batches)} batches of {batch_size} documents each")
 
     #process all batches asynchronously
-    def add_batch(batch:List[Document],batch_num:int):
+    async def add_batch(batch:List[Document],batch_num:int):
         try:
-            vectorStore.add_documents(batch)
+            await vectorStore.aadd_documents(batch)
             logger.log_success(f"VectorStore Indexing: Successfully added batch {batch_num}/{len(batches)} ({len(batch)} documents)")
         except Exception as e:
             logger.log_error(f"VectorStore Indexing: Failed to add batch {batch_num} - {e}")
@@ -53,10 +53,10 @@ async def index_docs_async(documents:List[Document],batch_size:int=50):
 
     #process batches concurrently
     tasks=[add_batch(batch,i+1) for i,batch in enumerate(batches)]
-    # results= await asyncio.gather(*tasks,return_exceptions=True)
+    results= await asyncio.gather(*tasks,return_exceptions=True)
 
     #count successfull batches
-    success = sum(1 for result in tasks if result is True)
+    success = sum(1 for result in results if result is True)
 
     if success==len(batches):
         logger.log_success(f"VectorStore Indexing: All batches processed successfully! ({success}/{len(batches)})")
