@@ -1,6 +1,5 @@
-def main():
-    print("Hello from documentation-helper!")
+from frontend.home import homepage
 
 
 if __name__ == "__main__":
-    main()
+    homepage()
